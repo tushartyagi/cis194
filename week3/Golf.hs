@@ -59,11 +59,5 @@ prepareStars xs
 step xs = map safeSubtract1 xs
   where safeSubtract1 = (\x -> if x == 0 then 0 else x - 1)
         
--- This should be a standard library function
--- Creates m lists each with n/m elements
-lists :: Int -> [a] -> [[a]]
-lists _ [] = []
-lists n xs = [take n xs] ++ lists n (drop n xs)
-
 sample1 = [1,1,1,5]
 sample2 = [1,4,5,4,6,6,3,4,2,4,9]
