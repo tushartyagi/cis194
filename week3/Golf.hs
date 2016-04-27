@@ -28,6 +28,13 @@ neighbours n xs
   | length xs < n = []
   | otherwise = [take n xs] ++ neighbours n (tail xs)
 
+
+localMaxima' :: [Integer] -> [Integer]
+localMaxima' (x:y:z:zs)
+  | y > x && y > z = y : localMaxima'(y:z:zs)
+  | otherwise = localMaxima'(y:z:zs)
+localMaxima' _ = []
+
 -- Exercise 3
 
 histogram :: [Integer] -> String
