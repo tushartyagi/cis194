@@ -1,5 +1,6 @@
 module Calc where
 
+import Expr
 import ExprT
 import Parser
 
@@ -25,11 +26,6 @@ evalStr s = case parser s of
   Just e -> Just (eval e)
 
 -- Ex 3
-
-class Expr a where
-  lit :: Integer -> a
-  add :: a -> a -> a
-  mul :: a -> a -> a
 
 instance Expr ExprT where
   lit n = Lit n
@@ -81,3 +77,9 @@ testInteger  = testExp :: Maybe Integer
 testBool     = testExp :: Maybe Bool
 testMM       = testExp :: Maybe MinMax
 testSat      = testExp :: Maybe Mod7
+
+
+-- Ex 5: In a separate file since the property names conflict
+
+
+  
