@@ -70,3 +70,26 @@ hasNoChild Leaf = True
 hasNoChild (Node _ Leaf _ Leaf) = True
 hasNoChild _ = False
 
+-- Exercise 3
+
+xor :: [Bool] -> Bool
+xor = odd . foldr countTrue 0
+  where countTrue = \current acc -> if current then acc + 1 else acc
+
+map' :: (a -> b) -> [a] -> [b]
+map' f = foldr add []
+  where add current acc = [f current] ++ acc
+
+myFoldl :: (a -> b -> a) -> a -> [b] -> a
+myFoldl f base xs = foldr f' base (reverse xs)
+  where f' current acc = f acc current
+
+-- Exercise 4
+
+list1 n = [i + j + 2*i*j | i <- [1..n], j <- [1..n], i <= j, i + j + 2*i*j <= n]
+
+elems n = [x | x <- [1..n], not (x `elem` ijValues)]
+  where ijValues = list1 n
+
+sieveSundaram :: Integer -> [Integer]
+sieveSundaram n = map (\x -> 2*x + 1) (elems n)
