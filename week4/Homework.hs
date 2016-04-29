@@ -87,6 +87,9 @@ myFoldl f base xs = foldr f' base (reverse xs)
 -- Exercise 4
 
 list1 n = [i + j + 2*i*j | i <- [1..n], j <- [1..n], i <= j, i + j + 2*i*j <= n]
+list2 n = filter (<= n) . map (\(i, j) -> i + j + 2*i*j) $
+  [(i,j) | i <- [1..n], j <- [1..n], i <= j]
+
 
 elems n = [x | x <- [1..n], not (x `elem` ijValues)]
   where ijValues = list1 n
