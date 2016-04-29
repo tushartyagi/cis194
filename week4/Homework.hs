@@ -26,10 +26,9 @@ data Tree a = Leaf
             | Node Height (Tree a) a (Tree a)
             deriving Eq
 
--- foldTree :: [a] -> Tree a
--- foldTree = foldr createTree Leaf
+foldTree :: (Eq a) => [a] -> Tree a
+foldTree = foldr insert Leaf
 
--- Node will have a height of 0
 insert :: (Eq a) => a -> Tree a -> Tree a
 insert nodeValue Leaf = Node 0 Leaf nodeValue Leaf
 insert nodeValue tree@(Node treeHeight left value right) 
@@ -37,7 +36,21 @@ insert nodeValue tree@(Node treeHeight left value right)
   | right == Leaf = Node treeHeight left value (insert nodeValue right)
   | height left < height right = Node treeHeight (insert nodeValue left) value right
   | height left > height right = Node treeHeight left value (insert nodeValue right)
-  | otherwise = Node treeHeight (insert nodeValue left) value right
+  | countNodes left < countNodes right = Node treeHeight (insert nodeValue left) value right
+  | countNodes left > countNodes right = Node treeHeight left value (insert nodeValue right)
+  | otherwise = let newNode = insert nodeValue left
+                    newHeight = 1 + (height newNode `max` height right)
+                in Node newHeight newNode value right
+
+
+height :: Tree a -> Integer
+height Leaf = (-1) 
+height (Node h _ _ _) = h
+
+countNodes :: Tree a -> Int
+countNodes Leaf = 0 
+countNodes (Node _ left _ right) = countNodes left + 1 + countNodes right
+
 
 instance (Show a) => Show (Tree a) where
   show Leaf = "Leaf"
@@ -47,12 +60,13 @@ showWithIndent Leaf n = tabs n ++ "Leaf"
 showWithIndent (Node height left value right) n = 
             tabs n ++ "(Node " ++ show height ++ "\n" ++
             tabs n ++ showWithIndent left  (n+1) ++ "\n" ++
-            tabs (n+2) ++ show value ++ "\n" ++
+            tabs (n+4) ++ show value ++ "\n" ++
             tabs n ++ showWithIndent right (n+1) ++ ")"
 
 tabs n = concat (replicate n "  ")
 
-height :: Tree a -> Integer
-height Leaf = 0
-height (Node h _ _ _) = h
+
+hasNoChild Leaf = True
+hasNoChild (Node _ Leaf _ Leaf) = True
+hasNoChild _ = False
 
