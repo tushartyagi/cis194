@@ -41,8 +41,32 @@ streamMap :: (a -> b) -> Stream a -> Stream b
 streamMap f (Cons s ss) = Cons (f s) (streamMap f ss)
 
 streamFromSeed :: (a -> a) -> a -> Stream a
-streamFromSeed rule seed = Cons seed (streamMap rule (streamRepeat seed))
+streamFromSeed rule seed = Cons seed (streamFromSeed rule (rule seed)) 
 
 -- Ex 5
--- nats :: Stream Integer
--- nats = streamFromSeed (+1) 0
+nats :: Stream Integer
+nats = streamFromSeed (+1) 0
+
+-- Counting Numbers: Natural Numbers - {0}
+counting :: Stream Integer
+counting = streamFromSeed (+1) 1
+
+evenlyDivision :: Integer -> Integer
+evenlyDivision n = last . powers $ 2*n
+  where powers n = powersOf2 n 1 
+
+powersOf2 :: Integer -> Integer -> [Integer]
+powersOf2 num currPower
+  | num < 2^currPower = []
+  | num `mod` 2^currPower == 0 = currPower : powersOf2 num (currPower + 1)
+  | otherwise = powersOf2 num (currPower + 1) 
+
+ruler' :: Stream Integer
+ruler' = streamMap evenlyDivision counting 
+
+interleaveStreams :: Stream a -> Stream a -> Stream a
+interleaveStreams (Cons a as) (Cons b bs) = (Cons a (Cons b (interleaveStreams as bs)))
+
+ruler :: Stream Integer
+ruler = interleaveStreams (streamRepeat 0) ruler'
+
