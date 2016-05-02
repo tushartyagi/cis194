@@ -1,3 +1,6 @@
+{-# LANGUAGE FlexibleInstances #-}
+{-# OPTIONS_GHC -fno-warn-missing-methods #-}
+
 module Fibonacci where
 
 -- Ex 1
@@ -70,3 +73,40 @@ interleaveStreams (Cons a as) (Cons b bs) = (Cons a (Cons b (interleaveStreams a
 ruler :: Stream Integer
 ruler = interleaveStreams (streamRepeat 0) ruler'
 
+-- Ex 6
+
+x :: Stream Integer
+x = Cons 0 (Cons 1 (streamRepeat 0))
+
+instance Num (Stream Integer) where
+  fromInteger n = createIntStream n 1
+    where createIntStream n curr
+            | n == curr = Cons 1 (streamRepeat 0) 
+            | otherwise = Cons 0 (createIntStream n (curr + 1))
+  negate ss = streamMap (*(-1)) ss
+  (+) (Cons a0 a') (Cons b0 b') = Cons (a0+b0) (a'+b')
+  (*) (Cons a0 a') b@(Cons b0 b') = Cons (a0*b0) ((streamMap (*a0) b') + (a'*b))
+
+instance Fractional (Stream Integer) where
+  (/) a@(Cons a0 a') b@(Cons b0 b') = Cons (a0 `div` b0) (streamMap (*(1`div`b0)) (a' - q*b'))
+    where q = a / b
+
+fibs3 :: Stream Integer
+fibs3 = x / (1 - x - x^2) -- Whoa!
+
+-- Ex 7
+data Matrix = Matrix { m11 :: Integer
+                     , m12 :: Integer
+                     , m21 :: Integer
+                     , m22 :: Integer
+                     } deriving (Show, Eq)
+
+instance Num Matrix where
+  (*) (Matrix m11 m12 m21 m22) (Matrix n11 n12 n21 n22) =
+    Matrix (m11*n11 + m12*n21) (m11*n12 + m12*n22) (m21*n11 + m22*n21) (m21*n12 + m22*n22)
+
+fib4 :: Integer -> Integer
+fib4 n
+  | n == 0 = 0
+  | otherwise = m11 (f1 ^ n)
+    where f1 = Matrix 1 1 1 0
