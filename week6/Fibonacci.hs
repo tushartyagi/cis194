@@ -54,21 +54,26 @@ nats = streamFromSeed (+1) 0
 counting :: Stream Integer
 counting = streamFromSeed (+1) 1
 
-evenlyDivision :: Integer -> Integer
-evenlyDivision n = last . powers $ 2*n
-  where powers n = powersOf2 n 1 
-
-powersOf2 :: Integer -> Integer -> [Integer]
-powersOf2 num currPower
-  | num < 2^currPower = []
-  | num `mod` 2^currPower == 0 = currPower : powersOf2 num (currPower + 1)
-  | otherwise = powersOf2 num (currPower + 1) 
-
-ruler' :: Stream Integer
-ruler' = streamMap evenlyDivision counting 
-
 interleaveStreams :: Stream a -> Stream a -> Stream a
 interleaveStreams (Cons a as) (Cons b bs) = (Cons a (Cons b (interleaveStreams as bs)))
+  
+-- evenlyDivision :: Integer -> Integer
+-- evenlyDivision n = last . powers $ 2*n
+--   where powers n = powersOf2 n 1 
+
+-- powersOf2 :: Integer -> Integer -> [Integer]
+-- powersOf2 num currPower
+--   | num < 2^currPower = []
+--   | num `mod` 2^currPower == 0 = currPower : powersOf2 num (currPower + 1)
+--   | otherwise = powersOf2 num (currPower + 1) 
+
+powers :: Integer -> Integer
+powers n
+  | odd n = 1
+  | otherwise = 1 + powers (n `div` 2)
+
+ruler' :: Stream Integer
+ruler' = streamMap powers counting 
 
 ruler :: Stream Integer
 ruler = interleaveStreams (streamRepeat 0) ruler'
