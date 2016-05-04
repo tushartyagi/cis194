@@ -2,6 +2,7 @@ module JoinList where
 
 import Data.Monoid
 import Sized
+import Scrabble
 
 data JoinList m a = Empty
                   | Single m a
@@ -94,3 +95,13 @@ oea = o +++ e +++ a
 testIndex i jl = indexJ i jl == jlToList jl !!? i
 testDrop  n jl = jlToList (dropJ n jl) == drop n (jlToList jl)
 testTake  n jl = jlToList (takeJ n jl) == take n (jlToList jl)
+
+
+-- Ex 3
+
+scoreLine :: String -> JoinList Score String
+scoreLine s = Single (scoreString s) s
+
+-- Ex 4
+-- The editor is correctly working in ScrabbleBuffer by running:
+-- `runhaskell ScrabbleBuffer.hs`
