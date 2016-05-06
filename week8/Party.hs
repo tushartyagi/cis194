@@ -2,6 +2,7 @@ module Party where
 
 import Employee
 import Data.Tree
+import Data.List(sort, intersperse)
 
 -- Ex 1
 
@@ -37,6 +38,45 @@ gl123 = gl1 `mappend` gl2 `mappend` gl3
 -- E.g.:  foldr :: Foldable t => (a -> b -> b) -> b -> t a -> b
 -- Therefore, the signature is missing both the accumulator function
 -- and the seed value.
-treeFold :: (a -> b -> b) -> b -> Tree a -> b 
-treeFold = undefined
+treeFold :: (a -> [b] -> b) -> Tree a -> b 
+treeFold f (Node r xs) = f r (map (treeFold f) xs)
 
+
+-- Ex 3
+-- The sublists do not have to be recursively generated in *this* function,
+-- these will be generated later. This flawed understanding took up a lot of my -- time and brainpower.
+-- The following solution made it quite clear that we will have to use the
+-- treeFold to do the recursion.
+-- An elegent solution, taken from: https://github.com/evansb/cis194-hw
+nextLevel :: Employee -> [(GuestList, GuestList)] -> (GuestList, GuestList)
+nextLevel boss gls = (withBoss, withoutBoss)
+  -- map the moreFun function to all the subdepartments, which will pick the
+  -- moreFun gl from each subdepartment. This has all the subdepartments, and
+  -- since may include the sub-bosses, the current boss is excluded.
+  -- withBoss, on the other hand will have to pickup only the second list
+  -- from the pair, because the sub-bosses and boss will not gel well.
+  where withoutBoss = mconcat (map (uncurry moreFun) gls)
+        withBoss    = glCons boss (mconcat (map snd gls))
+
+-- Ex 4
+maxFun :: Tree Employee -> GuestList
+maxFun = uncurry moreFun . treeFold nextLevel 
+
+-- Ex 5
+instance Ord Employee where
+  compare e1 e2 = empName e1 `compare` empName e2
+
+-- Returns a list of sorted empList and fun
+getEmployeesAndFun :: String -> ([Name], Integer)
+getEmployeesAndFun empString = (sortedEmpList, fun)
+  where empTree = read empString :: Tree Employee
+        gl@(GL empList fun) = maxFun empTree
+        sortedEmpList = map (empName) (sort empList)
+
+formatEmps :: String -> String
+formatEmps empString = show fun ++ "\n" ++ separatedEmps
+  where (empNames, fun) = getEmployeesAndFun empString
+        separatedEmps = concat $ intersperse "\n" empNames
+
+main =
+  readFile "company.txt" >>= (\empString -> putStrLn $ formatEmps empString)
