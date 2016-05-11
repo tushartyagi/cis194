@@ -57,6 +57,14 @@ posInt = Parser f
 ------------------------------------------------------------
 -- Your code goes below here
 ------------------------------------------------------------
+type Name = String
+type Phone = String
+
+data Employee = Employee { name :: Name
+                         , phone :: Phone }
+              deriving Show
+
+createEmp name phone = Employee name phone
 
 -- Ex 1
 -- Functor instance for Parser
@@ -79,7 +87,22 @@ pureParser a = Parser f
   where
     f [] = Nothing
     f xs = Just (a, xs)
-      
+
+-- The trick here was to understand that the first parser will return a
+-- function instead of a value which has been the norm till this point.
+-- This function is then applied to the value that is produced by running
+-- the second parser. 
 instance Applicative Parser where
   pure a = pureParser a
-  p1 <*> p2 = undefined
+  p1 <*> p2 = Parser f
+    where f s = case runParser p1 s of
+            Nothing -> Nothing
+            Just (f', s') -> first f' <$> runParser p2 s' 
+
+parseName :: Parser Name
+parseName  = Parser f
+  where f xs
+          | null xs = Nothing
+          | otherwise = undefined 
+
+-- Ex 3
