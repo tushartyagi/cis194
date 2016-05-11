@@ -57,3 +57,29 @@ posInt = Parser f
 ------------------------------------------------------------
 -- Your code goes below here
 ------------------------------------------------------------
+
+-- Ex 1
+-- Functor instance for Parser
+first :: (a->b) -> (a,c) -> (b,c)
+first f (a, c) = (f a, c)
+
+-- Both `f` and `a` below are functions, and we are pretty sure about
+-- the signature of a :: String -> Maybe (a', String)
+-- To this Maybe (a', String), we need to fmap a function which will
+-- work on the pair: (a', String) -- and that function is `first` which
+-- applies the given function to the first of pair
+instance Functor Parser where
+  fmap f (Parser a) = Parser (fmap (first f) . a)
+
+-- > runParser (fmap (*2) posInt) "12312"
+-- Just (24624,"")
+
+-- Ex 2
+pureParser a = Parser f
+  where
+    f [] = Nothing
+    f xs = Just (a, xs)
+      
+instance Applicative Parser where
+  pure a = pureParser a
+  p1 <*> p2 = undefined
