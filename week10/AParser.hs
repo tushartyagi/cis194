@@ -99,10 +99,21 @@ instance Applicative Parser where
             Nothing -> Nothing
             Just (f', s') -> first f' <$> runParser p2 s' 
 
-parseName :: Parser Name
-parseName  = Parser f
-  where f xs
-          | null xs = Nothing
-          | otherwise = undefined 
-
 -- Ex 3
+aParser :: Parser Char
+aParser = satisfy (== 'a')
+
+bParser :: Parser Char
+bParser = satisfy (== 'b')
+
+abParser :: Parser (Char, Char)  
+abParser = (,) <$> aParser <*> bParser
+
+abParser_ :: Parser ()
+abParser_ = (\_ _ -> ()) <$> char 'a' <*> char 'b'
+
+intPair :: Parser [Integer]
+intPair = (\a b c -> [a,c]) <$> posInt <*> satisfy (== ' ') <*> posInt
+
+-- Ex 4
+
