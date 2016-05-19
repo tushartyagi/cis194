@@ -116,4 +116,16 @@ intPair :: Parser [Integer]
 intPair = (\a b c -> [a,c]) <$> posInt <*> satisfy (== ' ') <*> posInt
 
 -- Ex 4
+-- class Applicative f => Alternative f where
+--   empty :: f a
+--   (<|>) :: f a -> f a -> f a
 
+instance Alternative Parser where
+  empty = Parser f
+    where f _ = Nothing
+  p1 <|> p2 = Parser f
+    where f s = runParser p1 s <|> runParser p2 s
+
+-- Ex 5
+intOrUppercase :: Parser ()
+intOrUppercase = (const ()) <$> posInt <|> (const ()) <$> satisfy isUpper
