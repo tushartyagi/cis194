@@ -25,10 +25,10 @@ oneOrMore p = (:) <$> p <*> zeroOrMore p
 ------------------------------------------------------------
 
 spaces :: Parser String
-spaces = undefined
+spaces = zeroOrMore (char ' ')
 
 ident :: Parser String
-ident = undefined
+ident = (:) <$> satisfy isAlpha <*> zeroOrMore (satisfy isAlphaNum) 
 
 ------------------------------------------------------------
 --  3. Parsing S-expressions
@@ -47,3 +47,9 @@ data Atom = N Integer | I Ident
 data SExpr = A Atom
            | Comb [SExpr]
   deriving Show
+
+parseSExpr :: Parser SExpr
+parseSExpr = undefined
+
+parseAtom :: Parser Atom
+parseAtom = undefined 
