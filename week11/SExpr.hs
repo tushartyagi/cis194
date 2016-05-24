@@ -48,8 +48,23 @@ data SExpr = A Atom
            | Comb [SExpr]
   deriving Show
 
-parseSExpr :: Parser SExpr
-parseSExpr = undefined
+parseInt :: Parser Integer
+parseInt =  (spaces *> posInt)
+
+parseIdent :: Parser Ident 
+parseIdent = (spaces *> ident)
 
 parseAtom :: Parser Atom
-parseAtom = undefined 
+parseAtom = (\i -> N i) <$> parseInt <|> (\i -> I i) <$> parseIdent
+
+parseLBracket, parseRBracket :: Parser Char
+parseLBracket = char '('
+parseRBracket = char ')'
+
+trim :: Parser a -> Parser a
+trim p = spaces *> p <* spaces
+
+parseSStar = (parseLBracket *> oneOrMore parseSExpr <* parseRBracket)
+
+parseSExpr :: Parser SExpr
+parseSExpr = (\a -> A a) <$> trim parseAtom <|> (\s -> Comb s) <$> trim parseSStar  
