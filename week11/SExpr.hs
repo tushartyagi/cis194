@@ -55,6 +55,7 @@ parseIdent :: Parser Ident
 parseIdent = (spaces *> ident)
 
 parseAtom :: Parser Atom
+-- Using functor to transform `Parser Int` and `Parser Ident` to `Parser Atom`
 parseAtom = (\i -> N i) <$> parseInt <|> (\i -> I i) <$> parseIdent
 
 parseLBracket, parseRBracket :: Parser Char
