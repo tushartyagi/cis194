@@ -56,7 +56,7 @@ parseIdent = (spaces *> ident)
 
 parseAtom :: Parser Atom
 -- Using functor to transform `Parser Int` and `Parser Ident` to `Parser Atom`
-parseAtom = (\i -> N i) <$> parseInt <|> (\i -> I i) <$> parseIdent
+parseAtom = N <$> parseInt <|> I <$> parseIdent
 
 parseLBracket, parseRBracket :: Parser Char
 parseLBracket = char '('
@@ -65,7 +65,8 @@ parseRBracket = char ')'
 trim :: Parser a -> Parser a
 trim p = spaces *> p <* spaces
 
-parseSStar = (parseLBracket *> oneOrMore parseSExpr <* parseRBracket)
-
 parseSExpr :: Parser SExpr
-parseSExpr = (\a -> A a) <$> trim parseAtom <|> (\s -> Comb s) <$> trim parseSStar  
+parseSExpr = A <$> trim parseAtom
+  <|>
+  Comb <$> trim parseMoreS
+  where parseMoreS = (parseLBracket *> oneOrMore parseSExpr <* parseRBracket)
